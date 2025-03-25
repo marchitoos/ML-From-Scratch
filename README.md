@@ -11,8 +11,8 @@ Because of that idea I decide to make many machine learning models by myself.
 For now, I had planned the following models:
 
 - Supervised
-  - [ ] Linear Regression
-  - [ ] Logistic Regression
+  - [x] Linear Regression
+  - [x] Logistic Regression
   - [ ] Decision Trees
 
 - Unsupervised

@@ -20,3 +20,11 @@ class MeanSquareError(LossFunction):
 
     def loss(self, prediciton, target) -> Union[int, float, np.ndarray]:
         return np.mean((prediciton - target)**2)
+
+class BinaryCrossEntropy(LossFunction):
+    def gradient(self, prediction, target) -> Union[int, float, np.ndarray]:
+        return np.mean(prediction - target, 0)
+
+    def loss(self, prediciton, target) -> Union[int, float, np.ndarray]:
+        return np.mean(target * np.log(prediciton)
+                       + (1 - target) * np.log(1 - prediciton))
