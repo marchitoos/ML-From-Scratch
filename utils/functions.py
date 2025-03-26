@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 class Function(ABC):
     """An abstract Function"""
     @abstractmethod
-    def __call__(self, x:Union[int, float, np.ndarray], d:bool=True):
+    def __call__(self, x:Union[int, float, np.ndarray], d:bool=False):
         """Call the function.
         
         Args:

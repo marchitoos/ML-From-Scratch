@@ -1,13 +1,15 @@
 import numpy as np
-from utils.functions import Sigmoid
+from typing import Type
 from abc import ABC, abstractmethod
+from utils.functions import Function
 
-class Regression(ABC):
-    """An abstract Regression.
+class Layer(ABC):
+    """An abstract Layer.
     
     Attributes:
         weights (np.ndarray): The weights.
         bias (np.ndarray): The bias.
+        z (np.ndarray): Keeps the partially computed output.
         inputs (np.ndarray): Keeps the last input.
         output (np.ndarray): Keeps the last output.
 
@@ -16,16 +18,21 @@ class Regression(ABC):
         backwardpass(inputs): The backward pass of the regression.
     """
     @abstractmethod
-    def __init__(self, input_size:int):
+    def __init__(self, input_size:int, units:int, function:Type[Function]):
         """Constructor
         
         Args:
             input_size (int): The dimensionality of the input data.
+            units (int): The number of neurons in the layer.
+            function (Type[Function]): The activation function.
         """
         self.weights = np.empty()
         self.bias = np.empty()
 
+        self.function = None
+
         self.inputs = np.empty()
+        self.z = np.empty()
         self.output = np.empty()
     
     @abstractmethod
@@ -33,7 +40,7 @@ class Regression(ABC):
         """The Forward Pass.
 
 
-        Perform the forawrd pass throgh the regression.
+        Perform the forawrd pass throgh the layer.
         
         Args:
             inputs (np.ndarray): Input data.
@@ -54,41 +61,8 @@ class Regression(ABC):
             learning_rate: Learning rate for values update.
         """
 
-class LinearRegression(Regression):
-    """A Linear Regression.
-    
-    Attributes:
-        weights (np.ndarray): The weights.
-        bias (np.ndarray): The bias.
-        inputs (np.ndarray): Keeps the last input.
-        output (np.ndarray): Keeps the last output.
-
-    Methods:
-        forwardpass(inputs): The forward pass of the regression.
-        backwardpass(inputs): The backward pass of the regression.
-    """
-    def __init__(self, input_size) -> None:
-        self.weights = np.random.randn(input_size, 1)
-        self.bias = np.zeros((1, 1))
-
-        self.inputs = np.empty((1, input_size))
-        self.output = np.empty((1, 1))
-    
-    def forwardpass(self, inputs):
-        self.inputs = inputs
-        
-        self.output = inputs @ self.weights + self.bias
-
-        return self.output
-    
-    def backwardpass(self, error, learning_rate) -> None:
-        dw = self.inputs.T @ error
-
-        self.bias -= error * learning_rate
-        self.weights -= dw * learning_rate
-
-class LogisticRegression(Regression):
-    """A Logistic Regression.
+class Dense(Layer):
+    """A Dense Layer.
     
     Attributes:
         weights (np.ndarray): The weights.
@@ -101,26 +75,29 @@ class LogisticRegression(Regression):
         forwardpass(inputs): The forward pass of the regression.
         backwardpass(inputs): The backward pass of the regression.
     """
-    def __init__(self, input_size, sigmoid_value:float=1) -> None:
-        self.weights = np.random.randn(input_size, 1)
-        self.bias = np.zeros((1, 1))
+    def __init__(self, input_size:int, units:int, function:Type[Function]) -> None:
+        self.weights = np.random.randn(input_size, units)
+        self.bias = np.zeros((1, units))
 
-        self.function = Sigmoid(sigmoid_value)
+        self.function = function
 
         self.inputs = np.empty((1, input_size))
-        self.z = np.empty((1, 1))
-        self.output = np.empty((1, 1))
+        self.z = np.empty((1, units))
+        self.output = np.empty((1, units))
 
     def forwardpass(self, inputs) -> np.ndarray:
         self.inputs = inputs
-        
+
         self.z = inputs @ self.weights + self.bias
         self.output = self.function(self.z)
 
         return self.output
+    
+    def backwardpass(self, error, learning_rate) -> np.ndarray:
+        dz = error * self.function(self.z, d=True)
+        dw = self.inputs.T @ dz
+        dx = dz @ self.weights.T
 
-    def backwardpass(self, error, learning_rate) -> None:
-        dw = self.inputs.T @ error
-
-        self.bias -= error * learning_rate
         self.weights -= dw * learning_rate
+        self.bias -= dz * learning_rate
+        return dx

@@ -19,8 +19,8 @@ For now, I had planned the following models:
   - [ ] K-Means Clustering
 
 - Neural Networks
-  - [ ] Perceptron
-  - [ ] Feedforward
+  - [x] Perceptron
+  - [x] Feedforward
   - [ ] Recurrent
   - [ ] LSTM
   - [ ] Convolution
