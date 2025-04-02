@@ -101,3 +101,51 @@ class Dense(Layer):
         self.weights -= dw * learning_rate
         self.bias -= dz * learning_rate
         return dx
+
+class Recurrent(Layer):
+    """A Recurrent Layer.
+    
+    Attributes:
+        weights (np.ndarray): The weights.
+        hweights (np.ndarray): The hidden weights.
+        bias (np.ndarray): The bias.
+        hz (np.ndarray): Keeps the hidden state.
+        z (np.ndarray): Keeps the partially computed output.
+        inputs (np.ndarray): Keeps the last input.
+        output (np.ndarray): Keeps the last output.
+
+    Methods:
+        forwardpass(inputs): The forward pass of the regression.
+        backwardpass(inputs): The backward pass of the regression.
+    """
+    def __init__(self, input_size:int, units:int, function:Type[Function]) -> None:
+        self.weights = np.random.randn(input_size, units)
+        self.hweights = np.random.randn(1, units)
+        self.bias = np.zeros((1, units))
+
+        self.function = function
+
+        self.inputs = np.empty((1, input_size))
+        self.h = np.empty((1, units))
+        self.z = np.empty((1, units))
+        self.output = np.empty((1, units))
+    
+    def forwardpass(self, inputs) -> np.ndarray:
+        self.inputs = inputs
+        self.h = self.output
+
+        self.z = inputs @ self.weights + self.h * self.hweights + self.bias
+        self.output = self.function(self.z)
+
+        return self.output
+    
+    def backwardpass(self, error, learning_rate) -> np.ndarray:
+        dz = error * self.function(self.z, d=True)
+        dw = self.inputs.T @ dz
+        dh = self.h * dz
+        dx = dz @ self.weights.T
+
+        self.weights -= dw * learning_rate
+        self.hweights -= dh * learning_rate
+        self.bias -= dz * learning_rate
+        return dx
