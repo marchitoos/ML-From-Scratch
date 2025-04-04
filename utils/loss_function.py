@@ -69,5 +69,6 @@ class BinaryCrossEntropy(LossFunction):
         return np.mean(prediction - target, 0)
 
     def loss(self, prediciton, target) -> Union[int, float, np.ndarray]:
+        prediciton = np.clip(prediciton, 1e-15, 1 - 1e-15)
         return np.mean(target * np.log(prediciton)
                        + (1 - target) * np.log(1 - prediciton))
