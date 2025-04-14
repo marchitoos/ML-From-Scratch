@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Type, List
 from models.neural.layers import Layer
-from utils.loss_function import LossFunction
+from utils.loss_functions import LossFunction
 from utils.learning_schedules import LearningSchedule, Constant
 
 class Network:
