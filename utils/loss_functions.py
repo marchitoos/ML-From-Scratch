@@ -66,9 +66,23 @@ class BinaryCrossEntropy(LossFunction):
         gradient(prediction, target): The gradient descent of the loss function.
     """
     def gradient(self, prediction, target) -> Union[int, float, np.ndarray]:
-        return np.mean(prediction - target, 0)
+        return np.mean(prediction - target, 0).reshape(1, -1)
 
     def loss(self, prediciton, target) -> Union[int, float, np.ndarray]:
         prediciton = np.clip(prediciton, 1e-15, 1 - 1e-15)
         return np.mean(target * np.log(prediciton)
                        + (1 - target) * np.log(1 - prediciton))
+
+class CategoricalCrossEntropy(LossFunction):
+    """A Categorical Cross Entropy Loss Function
+    
+    Methods:
+        loss(predition, target): The loss function.
+        gradient(prediction, target): The gradient descent of the loss function.
+    """
+    def gradient(self, prediction, target) -> Union[int, float, np.ndarray]:
+        return (prediction - target).reshape(1, -1)
+
+    def loss(self, prediciton, target) -> Union[int, float, np.ndarray]:
+        prediciton = np.clip(prediciton, 1e-15, 1 - 1e-15)
+        return -np.sum(target * np.log(prediciton), axis=1)

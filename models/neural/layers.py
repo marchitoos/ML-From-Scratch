@@ -111,7 +111,11 @@ class Dense(Layer):
         return self.output
     
     def backwardpass(self, error, learning_rate) -> np.ndarray:
-        dz = error * self.function(self.z, d=True)
+        df = self.function(self.z, d=True)
+        if (df.shape[0] == df.shape[1]):
+            dz =  error @ df
+        else:
+            dz = error * df
         dw = self.inputs.T @ dz
         dx = dz @ self.weights.T
 
@@ -158,7 +162,11 @@ class Recurrent(Layer):
         return self.output
     
     def backwardpass(self, error, learning_rate) -> np.ndarray:
-        dz = error * self.function(self.z, d=True)
+        df = self.function(self.z, d=True)
+        if df.shape[0] == df.shape[1]:
+            dz = df @ error
+        else:
+            dz = error * df
         dw = self.inputs.T @ dz
         dh = self.h * dz
         dx = dz @ self.weights.T
